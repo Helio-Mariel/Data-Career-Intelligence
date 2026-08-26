@@ -287,10 +287,186 @@ GROUP BY job_id
 HAVING COUNT(*) > 1
 
 09 - Quais localizações concentram o maior número de vagas?
-
-      SELECT job_location,
-          COUNT(*) AS vagas_loc
+[
+  {
+    "job_location": "Anywhere",
+    "vagas_loc": "69606"
+  {
+    "job_location": "Singapore",
+    "vagas_loc": "23423"
+  {
+    "job_location": "Paris, France",
+    "vagas_loc": "12354"
+  {
+    "job_location": "Bengaluru, Karnataka, India",
+    "vagas_loc": "11517"
+  {
+    "job_location": "London, UK",
+    "vagas_loc": "10578"
+]
+SELECT job_location,
+     COUNT(*) AS vagas_loc
       FROM job_postings_fact
       GROUP BY job_location
     ORDER BY vagas_loc DESC
     LIMIT 10;
+
+10 - Qual é a proporção de vagas que permitem trabalho remoto?
+[
+  {
+    "vagas_remotas": "69606",
+    "vagas_nao_remotas": "718080",
+    "percentual_remoto": "8.84"
+  }
+]
+WITH vagas AS (  
+  SELECT 
+      COUNT(DISTINCT job_id) AS total_vagas,
+      COUNT(DISTINCT CASE WHEN job_work_from_home = TRUE THEN job_id END) AS vagas_remotas,
+      COUNT(DISTINCT CASE WHEN job_work_from_home = FALSE THEN job_id END) AS vagas_nao_remotas
+  FROM job_postings_fact )
+SELECT 
+    vagas_remotas,
+    vagas_nao_remotas,
+    ROUND((vagas_remotas * 100.0) / (total_vagas), 2) AS percentual_remoto
+FROM vagas;
+
+11 - Quais empresas concentram o maior número de vagas no dataset?
+[
+  {
+    "company_id": 572,
+    "name": "Emprego",
+    "total_vagas": "6661"
+  },
+  {
+    "company_id": 49,
+    "name": "Booz Allen Hamilton",
+    "total_vagas": "2890"
+  },
+  {
+    "company_id": 1148,
+    "name": "Dice",
+    "total_vagas": "2825"
+  },
+  {
+    "company_id": 162,
+    "name": "Harnham",
+    "total_vagas": "2551"
+  },
+  {
+    "company_id": 156,
+    "name": "Insight Global",
+    "total_vagas": "2254"
+  },
+]
+SELECT 
+      company_dim.name,
+    COUNT(DISTINCT job_id) AS total_vagas
+FROM job_postings_fact
+LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
+GROUP BY company_dim.company_id
+ORDER BY total_vagas DESC
+LIMIT 10;
+
+12 - Quantas vagas possuem pelo menos uma skill associada?
+[
+  {
+    "total_vagas": "787686",
+    "vagas_com_skill": "670364",
+    "vagas_sem_skill": "117322",
+    "percentual_vagas_com_skill": "85.11"
+  }
+]
+WITH vagas_com_skill AS (
+    SELECT COUNT(DISTINCT job_id) AS total
+    FROM skills_job_dim
+),
+total AS (
+    SELECT COUNT(DISTINCT job_id) AS total
+    FROM job_postings_fact
+)
+
+SELECT
+    total.total AS total_vagas,
+    vagas_com_skill.total AS vagas_com_skill,
+    total.total - vagas_com_skill.total AS vagas_sem_skill,
+    ROUND(
+        vagas_com_skill.total * 100.0 / total.total,
+        2
+    ) AS percentual_vagas_com_skill
+FROM total
+CROSS JOIN vagas_com_skill;
+
+13 - Agora que sabemos quantas vagas possuem skills, precisamos verificar se as relações estão consistentes.
+100% consistentes
+SELECT
+    COUNT(DISTINCT s.job_id) AS job_ids_orfaos
+FROM skills_job_dim AS s
+LEFT JOIN job_postings_fact AS j
+    ON s.job_id = j.job_id
+WHERE j.job_id IS NULL;
+
+14 - Quantas skills existentes em skills_dim são efetivamente utilizadas nas vagas?
+[
+  {
+    "total_skills": "259",
+    "skills_utilizadas": "259",
+    "skills_nao_utilizadas": "0",
+    "percentual_skills_utilizadas": "100.00"
+  }
+]
+WITH total AS (SELECT 
+  COUNT(DISTINCT skill_id) AS total_skills
+FROM skills_dim),
+utilizadas AS (SELECT 
+  COUNT(DISTINCT s.skill_id) AS skills_utilizadas
+  FROM skills_dim AS s
+INNER JOIN skills_job_dim AS sj
+    ON s.skill_id = sj.skill_id) 
+
+SELECT 
+    total_skills,
+    skills_utilizadas,
+    total_skills - skills_utilizadas as skills_nao_utilizadas,
+    ROUND((skills_utilizadas * 100.0) / total_skills, 2) AS percentual_skills_utilizadas
+FROM total
+CROSS JOIN utilizadas;
+
+15 - Quantas skills, em média, estão associadas a cada vaga?
+[
+  {
+    "media_skills_por_vaga": "5.47",
+    "minimo_skills_por_vaga": "1",
+    "maximo_skills_por_vaga": "53"
+  }
+]
+  WITH skills_por_vaga AS (
+  SELECT 
+          job_id,
+          COUNT(DISTINCT skill_id) AS skill_count
+      FROM skills_job_dim
+      GROUP BY job_id 
+      ORDER BY skill_count DESC)
+  SELECT 
+      ROUND(AVG(skill_count), 2) AS media_skills_por_vaga,
+      MIN(skill_count) AS minimo_skills_por_vaga,
+      MAX(skill_count) AS maximo_skills_por_vaga
+  FROM skills_por_vaga;
+
+16 - Existem registros duplicados na tabela skills_job_dim?
+Não
+SELECT
+    job_id,
+    skill_id,
+    COUNT(*) AS quantidade
+FROM skills_job_dim
+GROUP BY job_id, skill_id
+HAVING COUNT(*) > 1;
+
+17 - Quantas relações existem entre vagas e skills e quantas skills diferentes estão efetivamente sendo utilizadas?
+  total_relacoes: 3.669.604
+  skills_utilizadas: 259
+SELECT
+    COUNT(skill_id) AS total_relacoes,
+    COUNT(DISTINCT skill_id) AS skills_utilizadas
+FROM skills_job_dim;
