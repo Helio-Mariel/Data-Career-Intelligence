@@ -8,7 +8,7 @@ As vagas foram agrupadas por **job_title_short** , utilizando **job_id** como id
 
 ## Result
 
-[sql_analysis](/sql/Q01%20-%20market_structure/).
+[sql_analysis](/sql/Q01-market_structure/sql_analysis.sql).
 
 | Rank | Cargo          |   Vagas | Participação |
 | ---: | -------------- | ------: | -----------: |
