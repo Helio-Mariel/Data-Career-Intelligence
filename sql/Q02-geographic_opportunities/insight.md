@@ -6,9 +6,8 @@ Como as oportunidades de trabalho estão distribuídas geograficamente e como a 
 
 A Q2 foi dividida em três camadas: **localização**, **trabalho remoto por cargo** e **relação entre Anywhere e job_work_from_home**.
 
-## Result
+## Result - [sql_analysis](/sql/Q02-skills_intelligence/sql_analysis.sql).
 
-[sql_analysis](/sql/Q02-skills_intelligence/sql_analysis.sql).
 
 **Q2.1 — Distribuição por localização**
 
@@ -47,7 +46,7 @@ A Q2 foi dividida em três camadas: **localização**, **trabalho remoto por car
 | Anywhere            |  **69.606** |        **0** |
 | Outras localizações |       **0** |  **718.080** |
 
-# Insight
+## Insight
 
 **Análise consolidada da Q2**
 

@@ -6,9 +6,8 @@ Quais cargos concentram as oportunidades no mercado de trabalho de dados?
 
 As vagas foram agrupadas por **job_title_short** , utilizando **job_id** como identificador único. Para cada categoria profissional foi calculado o número de vagas, a participação relativa no total e a participação acumulada.
 
-## Result
+## Result - [sql_analysis](/sql/Q01-market_structure/sql_analysis.sql).
 
-[sql_analysis](/sql/Q01-market_structure/sql_analysis.sql).
 
 | Rank | Cargo          |   Vagas | Participação |
 | ---: | -------------- | ------: | -----------: |
@@ -22,4 +21,4 @@ As vagas foram agrupadas por **job_title_short** , utilizando **job_id** como id
 
 # Insight
 
-O mercado analisado apresenta forte concentração em três famílias profissionais: Data Analyst, Data Engineer e Data Scientist. Juntas, essas categorias representam 70,59% das vagas, indicando que a maior parte das oportunidades do dataset está concentrada nesses três perfis.
+O mercado analisado apresenta forte concentração em três famílias profissionais: **Data Analyst**, **Data Engineer** e **Data Scientist**. Juntas, essas categorias representam 70,59% das vagas, indicando que a maior parte das oportunidades do dataset está concentrada nesses três perfis.
